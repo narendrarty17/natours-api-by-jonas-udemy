@@ -16,7 +16,10 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email']
     },
-    photo: String,
+    photo: {
+        type: String,
+        default: 'default.jpg'
+    },
     role: {
         type: String,
         enum: ['user', 'guide', 'lead-guide', 'admin'],
@@ -83,13 +86,10 @@ userSchema.methods.correctPassword = catchAsync(async function (
 userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
     // Since JWT produced quickly but changedTimeStamp takes time to store so it may be possible that while saving simultaneously JWT gets produces early and jwt > changedPasswordAt so to compensate that I added 10000ms to jwt timestamp
     JWTTimestamp = JWTTimestamp + 75000;
-    console.log('Changed password after ran');
     if (this.passwordChangedAt) {
         const changedTimestamp = parseInt(
             this.passwordChangedAt.getTime() / 1000, 10
         );
-        console.log('Password change in database', changedTimestamp);
-        console.log('JWT timestamp: ', JWTTimestamp);
         return JWTTimestamp < changedTimestamp;
     }
     // false means not changed
