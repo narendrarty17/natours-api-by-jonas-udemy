@@ -12,9 +12,11 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const globalErrorHandler = require('./controllers/errorController');
 const reviewRouter = require('./routes/reviewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 
 const app = express();
 
+console.log('inside app.js');
 // Global Middlewares
 // serving static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -67,6 +69,9 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+console.log('before app.use of bookingRouter');
+app.use('/api/v1/bookings', bookingRouter);
+console.log('after app.use of bookingRotuer');
 
 app.all('*', (req, res, next) => {
     next(new AppError(

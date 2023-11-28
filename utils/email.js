@@ -1,7 +1,6 @@
 const nodemailer = require('nodemailer');
 const pug = require('pug');
 const htmlToText = require('html-to-text');
-const cheerio = require('cheerio');
 
 // new Email(user, url).sendWelcome();
 
@@ -10,13 +9,20 @@ module.exports = class Email {
         this.to = user.email;
         this.firstName = user.name.split(' ')[0];
         this.url = url;
-        this.from = `Narendra Kumar <${process.env.EMAIL_FROM}>`;
+        this.from = `Narendra <${process.env.EMAIL_FROM}>`;
     }
 
     newTransport() {
         if (process.env.NODE_ENV === 'production') {
-            // Sendgrid
-            return 1;
+            // Brevo
+            return nodemailer.createTransport({
+                host: process.env.BREVO_HOST,
+                port: process.env.BREVO_PORT,
+                auth: {
+                    user: process.env.BREVO_USERNAME,
+                    pass: process.env.BREVO_PASSWORD
+                }
+            });
         }
 
         return nodemailer.createTransport({
@@ -45,7 +51,7 @@ module.exports = class Email {
             to: this.to,
             subject: subject,
             html,
-            text: cheerio.load(html).text()
+            text: htmlToText.htmlToText(html)
         };
 
         // 3) Create a transport and send email
