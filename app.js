@@ -6,6 +6,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const compression = require('compression');
 
 const AppError = require('./utils/appError');
 const tourRouter = require('./routes/tourRoutes');
@@ -16,7 +17,6 @@ const bookingRouter = require('./routes/bookingRoutes');
 
 const app = express();
 
-console.log('inside app.js');
 // Global Middlewares
 // serving static files
 app.use(express.static(path.join(__dirname, 'public')));
@@ -60,6 +60,8 @@ app.use(hpp({
     ]
 }));
 
+app.use(compression());
+
 // test middleware
 app.use((req, res, next) => {
     req.requestTime = new Date().toISOString();
@@ -69,9 +71,7 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
-console.log('before app.use of bookingRouter');
 app.use('/api/v1/bookings', bookingRouter);
-console.log('after app.use of bookingRotuer');
 
 app.all('*', (req, res, next) => {
     next(new AppError(
